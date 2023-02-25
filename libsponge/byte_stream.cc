@@ -1,4 +1,5 @@
 #include "byte_stream.hh"
+
 #include <iostream>
 // Dummy implementation of a flow-controlled in-memory byte stream.
 
@@ -19,7 +20,7 @@ size_t ByteStream::write(const string &data) {
     auto end = ::min(_capacity, _current + len);
     std::copy(data.begin(), data.begin() + end - _current, &_buffer[_current]);
     if (_current + len > _capacity) {
-            std::copy(data.begin() + end - _current, data.end(), _buffer.get());
+        std::copy(data.begin() + end - _current, data.end(), _buffer.get());
     }
     _current = (_current + len) % _capacity;
     _size += len;
@@ -30,8 +31,8 @@ size_t ByteStream::write(const string &data) {
 //! \param[in] len bytes will be copied from the output side of the buffer
 string ByteStream::peek_output(const size_t len) const {
     auto length = ::min(len, buffer_size());
-    
-    auto begin = ::max(static_cast<ssize_t>(0), static_cast<ssize_t>(_current) -static_cast<ssize_t>(length));
+
+    auto begin = ::max(static_cast<ssize_t>(0), static_cast<ssize_t>(_current) - static_cast<ssize_t>(length));
     std::string res(&_buffer[begin], &_buffer[_current]);
     if (static_cast<int>(_current - length) < 0) {
         res.insert(res.cbegin(), &_buffer[_capacity + _current - length], &_buffer[_capacity]);
@@ -40,9 +41,7 @@ string ByteStream::peek_output(const size_t len) const {
 }
 
 //! \param[in] len bytes will be removed from the output side of the buffer
-void ByteStream::pop_output(const size_t len) { 
-    _size -= ::min(len, buffer_size());
-}
+void ByteStream::pop_output(const size_t len) { _size -= ::min(len, buffer_size()); }
 
 //! Read (i.e., copy and then pop) the next "len" bytes of the stream
 //! \param[in] len bytes will be popped and returned
@@ -53,9 +52,7 @@ std::string ByteStream::read(const size_t len) {
     return str;
 }
 
-void ByteStream::end_input() {
-    _ended = true;
-}
+void ByteStream::end_input() { _ended = true; }
 
 bool ByteStream::input_ended() const { return _ended; }
 
