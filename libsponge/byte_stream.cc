@@ -20,7 +20,7 @@ size_t ByteStream::write(const string &data) {
     auto end = ::min(_capacity, _current + len);
     std::copy(data.begin(), data.begin() + end - _current, &_buffer[_current]);
     if (_current + len > _capacity) {
-        std::copy(data.begin() + end - _current, data.end(), _buffer.get());
+        std::copy(data.begin() + end - _current, data.begin() + len, _buffer.get());
     }
     _current = (_current + len) % _capacity;
     _size += len;
@@ -31,12 +31,17 @@ size_t ByteStream::write(const string &data) {
 //! \param[in] len bytes will be copied from the output side of the buffer
 string ByteStream::peek_output(const size_t len) const {
     auto length = ::min(len, buffer_size());
-
-    auto begin = ::max(static_cast<ssize_t>(0), static_cast<ssize_t>(_current) - static_cast<ssize_t>(length));
-    std::string res(&_buffer[begin], &_buffer[_current]);
-    if (static_cast<int>(_current - length) < 0) {
-        res.insert(res.cbegin(), &_buffer[_capacity + _current - length], &_buffer[_capacity]);
+    if (_current >= buffer_size()) {
+        return {&_buffer[_current - buffer_size()], &_buffer[_current - buffer_size() + length]};
     }
+
+    std::string res{&_buffer[_capacity + _current - buffer_size()],
+                    &_buffer[::min(_capacity, _capacity + _current - buffer_size() + length)]};
+    length -= res.size();
+    if (length > 0) {
+        res.append(_buffer.get(), _buffer.get() + length);
+    }
+
     return res;
 }
 

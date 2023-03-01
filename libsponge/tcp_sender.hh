@@ -9,6 +9,26 @@
 #include <functional>
 #include <queue>
 
+class Timer {
+  private:
+    unsigned int _retransmission_timeout;
+    unsigned int _accumulated_ms{};
+
+  public:
+    Timer(unsigned int ms) : _retransmission_timeout(ms) {}
+
+    bool expired() { return _accumulated_ms >= _retransmission_timeout; }
+
+    void tick(const size_t ms_since_last_tick) { _accumulated_ms += ms_since_last_tick; }
+
+    unsigned int retransmission_timeout() const { return _retransmission_timeout; }
+
+    void reset(unsigned int ms) {
+        _retransmission_timeout = ms;
+        _accumulated_ms = 0;
+    }
+};
+
 //! \brief The "sender" part of a TCP implementation.
 
 //! Accepts a ByteStream, divides it up into segments and sends the
@@ -31,6 +51,16 @@ class TCPSender {
 
     //! the (absolute) sequence number for the next byte to be sent
     uint64_t _next_seqno{0};
+
+    std::optional<Timer> _timer{};
+
+    unsigned int _retransmission_count{};
+
+    uint64_t _ackno{0};
+
+    uint16_t _window_size{1};
+
+    std::queue<TCPSegment> _outstanding_segs{};
 
   public:
     //! Initialize a TCPSender
