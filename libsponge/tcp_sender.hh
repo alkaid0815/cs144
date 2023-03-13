@@ -114,6 +114,8 @@ class TCPSender {
     //! \brief absolute seqno for the next byte to be sent
     uint64_t next_seqno_absolute() const { return _next_seqno; }
 
+    uint64_t acknoed() const { return _ackno; }
+
     //! \brief relative seqno for the next byte to be sent
     WrappingInt32 next_seqno() const { return wrap(_next_seqno, _isn); }
     //!@}

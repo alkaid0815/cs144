@@ -21,6 +21,13 @@ class TCPConnection {
     //! in case the remote TCPConnection doesn't know we've received its whole stream?
     bool _linger_after_streams_finish{true};
 
+    size_t _timer{};
+
+    void fill_window(bool is_rst = false);
+    void send_rst();
+    const ByteStream &outbound_stream() const { return _sender.stream_in(); }
+    ByteStream &outbound_stream() { return _sender.stream_in(); }
+
   public:
     //! \name "Input" interface for the writer
     //!@{

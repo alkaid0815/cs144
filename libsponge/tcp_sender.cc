@@ -44,7 +44,7 @@ void TCPSender::fill_window() {
         }
 
         if (sequence_size > 0 && !stream_in().buffer_empty()) {
-            auto str = stream_in().read(std::min(TCPConfig::MAX_PAYLOAD_SIZE, sequence_size));
+            auto str = stream_in().read(min(TCPConfig::MAX_PAYLOAD_SIZE, sequence_size));
             sequence_size -= str.size();
             seg.payload() = std::move(str);
         }
